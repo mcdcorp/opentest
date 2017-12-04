@@ -1,0 +1,13 @@
+# This test loads the moment.js library from an external JS file. External JS files
+# must be stored in the "scripts" directory, in the root of the test repo.
+description: Using the moment.js library to manipulate date and time values
+includes: moment.min.js
+actors:
+  - actor: ACTOR1
+    segments:
+      - segment: 1
+        actions:
+          - description: Calculate the time and date for exactly one week from now
+            script: |
+              var oneWeekFromNow = moment().add(7, "days").format("YYYY/MM/DD HH:mm:ss");
+              $log("The date and time for exactly one week from now is " + oneWeekFromNow);
