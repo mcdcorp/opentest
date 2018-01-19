@@ -1,0 +1,64 @@
+package org.getopentest.actions.files;
+
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import org.getopentest.base.TestAction;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+public class GetFromSftp extends TestAction {
+
+    @Override
+    public void run() {
+        super.run();
+
+        String destinationFile = this.readStringArgument("destinationFile");
+        String sourceHost = this.readStringArgument("sourceHost");
+        Integer sourcePort = this.readIntArgument("sourcePort", 22);
+        String sourceDir = this.readStringArgument("sourceDir");
+        String sourceFile = this.readStringArgument("sourceFile");
+        String userName = this.readStringArgument("userName");
+        String password = this.readStringArgument("password");
+
+        Session session = null;
+        Channel channel = null;
+        ChannelSftp channelSftp = null;
+
+        try {
+            JSch jsch = new JSch();
+            session = jsch.getSession(userName, sourceHost, sourcePort);
+            session.setPassword(password);
+            java.util.Properties config = new java.util.Properties();
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+            session.connect();
+            this.log.trace("Connected to SFTP host");
+            channel = session.openChannel("sftp");
+            channel.connect();
+            this.log.trace("The SFTP channel was opened and connected");
+            channelSftp = (ChannelSftp) channel;
+            channelSftp.cd(sourceDir);
+            File f = new File(destinationFile);
+            FileOutputStream fileOutputStream = new FileOutputStream(f);
+            channelSftp.get(sourceFile, fileOutputStream);
+            fileOutputStream.close();
+            fileOutputStream = null;
+            f = null;
+        } catch (Exception ex) {
+            throw new RuntimeException("SFTP transfer failed", ex);
+        } finally {
+            if (channelSftp != null) {
+                channelSftp.exit();
+            }
+            if (channel != null) {
+                channel.disconnect();
+            }
+            if (session != null) {
+                session.disconnect();
+            }
+        }
+    }
+}
