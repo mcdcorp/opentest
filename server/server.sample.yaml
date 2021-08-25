@@ -24,6 +24,10 @@ acquireActorsTimeoutSec: 1200
 # no activity (no actors are making any progress executing test segments)
 noActivityTimeoutSec: 3600
 
+# The maximum size allowed for the content of server response messages, in
+# bytes. The default is 3MB.
+responseMaxSize: 3145728
+
 # Actor groups can be used to limit the number of actors that can run in
 # parallel at any given time. This is useful when running against a cloud
 # provider, to avoid starting more sessions than the provider allows.
